@@ -23,7 +23,9 @@ $(function () {
             var cf = $this.data('confirm');
 
             if (cf && cf.length > 0) {
-                confirmDialog(cf, () => doClickAction($this));
+                confirmDialog(cf,function () {
+                    doClickAction($this)
+                } );
                 return false;
             }
 
@@ -66,7 +68,7 @@ function doClickAction($this) {
     }
 
     //url
-    var curl = $this.data('url');
+    var curl = $this.data('url') || $this.data('href');
     if (!curl || curl.length <= 0) {
         if ($this[0].tagName == 'A') {
             curl = $this.attr('href');
@@ -100,13 +102,21 @@ function doAction(methodName, actionUrl, actionParamter) {
         },
         complete: function (result) {
             var rs = result.responseJSON;
-            if (rs.data && rs.data.length > 0) {
-                tips(rs.data, 0, 1000);
+            
+            if (rs.message || rs.data) {
+                tips(rs.message || rs.data, 0, 1000);
             }
+            
             if (rs.url && rs.url.length > 0) {
                 if (rs.url == '[refresh]') {
-                    //刷新页面但不重新加载页面的所有静态资源
-                    location.reload(false);
+                    if(rs.time && +rs.time > 0){
+                        setTimeout(function () {
+                            location.reload(false)
+                        }, Math.min(+rs.time, 10) * 1000) //不能大于10秒，
+                    }else {
+                        //刷新页面但不重新加载页面的所有静态资源
+                        location.reload(false);
+                    }
                 } else {
                     window.location.href = rs.url;
                 }
