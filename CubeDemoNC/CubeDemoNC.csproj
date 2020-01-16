@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>cube</AssemblyName>
+    <RootNamespace>CubeDemo</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -18,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.Core" Version="8.5.2020.101" />
-    <PackageReference Include="NewLife.XCode" Version="9.14.2020.101" />
+    <PackageReference Include="NewLife.Core" Version="8.5.2020.115" />
+    <PackageReference Include="NewLife.XCode" Version="9.14.2020.115" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +44,7 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="http://json.schemastore.org/behat" /></VisualStudio></ProjectExtensions>
 
 <!--  <Target Name="PostBuild" AfterTargets="PostBuildEvent">-->
 <!--    <Exec Command="del &quot;$(TargetDir)*.xml&quot; /q" />-->

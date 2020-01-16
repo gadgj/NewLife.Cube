@@ -422,7 +422,7 @@ namespace NewLife.Cube
             return true;
         }
 
-        private static void BuildUser(FieldItem item, StringBuilder sb) => sb.AppendFormat(@"<td class=""text-center"" class=""text-right"">@provider.FindByID(entity.{0})</td>", item.Name);
+        private static void BuildUser(FieldItem item, StringBuilder sb) => sb.AppendFormat(@"<td class=""text-center"">@provider.FindByID(entity.{0})</td>", item.Name);
 
         private static void BuildIP(FieldItem item, StringBuilder sb) => sb.AppendFormat(@"<td class=""text-center"" title=""@entity.{0}.IPToAddress()"">@entity.{0}</td>", item.Name);
 
@@ -751,7 +751,7 @@ namespace NewLife.Cube
     var fact = ViewBag.Factory as IEntityOperate;
     var page = ViewBag.Page as Pager;
 }
-@*<div class=""form - group"">
+@*<div class=""form-group"">
     @Html.ActionLink(""用户链接"", ""Index"", ""UserConnect"", null, new { @class = ""btn btn-success btn-sm"" })
     @Html.ActionLink(""用户在线"", ""Index"", ""UserOnline"", null, new { @class = ""btn btn-success btn-sm"" })
     <label for=""RoleID"" class=""control-label"">角色：</label>
@@ -768,7 +768,7 @@ namespace NewLife.Cube
     var fact = ViewBag.Factory as IEntityOperate;
     var page = ViewBag.Page as Pager;
 }
-@*<div class=""form - group"">
+@*<div class=""form-group"">
     @Html.ActionLink(""用户链接"", ""Index"", ""UserConnect"", null, new { @class = ""btn btn-success btn-sm"" })
     @Html.ActionLink(""用户在线"", ""Index"", ""UserOnline"", null, new { @class = ""btn btn-success btn-sm"" })
     <label for=""RoleID"" class=""control-label"">角色：</label>
@@ -826,7 +826,7 @@ namespace NewLife.Cube
             if (user == null || user.Avatar.IsNullOrEmpty()) return null;
 
             var set = Setting.Current;
-            var av = set.AvatarPath.CombinePath(user.ID + ".png").GetFullPath();
+            var av = set.AvatarPath.CombinePath(user.ID + ".png").GetBasePath();
 
             if (File.Exists(av)) return "/Sso/Avatar/" + user.ID;
 

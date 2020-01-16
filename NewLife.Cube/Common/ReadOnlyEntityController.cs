@@ -51,11 +51,7 @@ namespace NewLife.Cube
         }
 
         /// <summary>构造函数</summary>
-        public ReadOnlyEntityController()
-        {
-            var title = Entity<TEntity>.Meta.Table.DataTable.DisplayName + "管理";
-            ViewBag.Title = title;
-        }
+        public ReadOnlyEntityController() { }
 
         /// <summary>动作执行前</summary>
         /// <param name="filterContext"></param>
@@ -65,6 +61,9 @@ namespace NewLife.Cube
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
 #endif
         {
+            var title = GetType().GetDisplayName() ?? typeof(TEntity).GetDisplayName() ?? Entity<TEntity>.Meta.Table.DataTable.DisplayName;
+            ViewBag.Title = title;
+
             // Ajax请求不需要设置ViewBag
             if (!Request.IsAjaxRequest())
             {
@@ -746,7 +745,7 @@ namespace NewLife.Cube
 
                 var name = fact.EntityType.Name;
                 var fileName = "{0}_{1:yyyyMMddHHmmss}.gz".F(name, DateTime.Now);
-                var bak = XCode.Setting.Current.BackupPath.CombinePath(fileName).GetFullPath();
+                var bak = NewLife.Setting.Current.BackupPath.CombinePath(fileName).GetBasePath();
                 bak.EnsureDirectory(true);
 
                 var rs = 0;
@@ -779,7 +778,7 @@ namespace NewLife.Cube
                 var name = fact.EntityType.Name;
                 var fileName = "{0}_*.gz".F(name);
 
-                var di = XCode.Setting.Current.BackupPath.AsDirectory();
+                var di = NewLife.Setting.Current.BackupPath.GetBasePath().AsDirectory();
                 var fi = di?.GetFiles(fileName)?.LastOrDefault();
                 if (fi == null || !fi.Exists) throw new XException($"找不到[{fileName}]的备份文件");
 

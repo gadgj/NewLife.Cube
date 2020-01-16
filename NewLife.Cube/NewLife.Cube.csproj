@@ -45,8 +45,8 @@
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NewLife.Core, Version=8.5.7305.42330, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NewLife.Core.8.5.2020.101\lib\net45\NewLife.Core.dll</HintPath>
+    <Reference Include="NewLife.Core, Version=8.5.7319.2075, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NewLife.Core.8.5.2020.115\lib\net45\NewLife.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -83,8 +83,8 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
-    <Reference Include="XCode, Version=9.14.7305.42400, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NewLife.XCode.9.14.2020.101\lib\net45\XCode.dll</HintPath>
+    <Reference Include="XCode, Version=9.14.7319.2106, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NewLife.XCode.9.14.2020.115\lib\net45\XCode.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -122,11 +122,6 @@
     </Compile>
     <Compile Include="Areas\Admin\Views\Db\Index.generated.cs">
       <DependentUpon>Index.cshtml</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Areas\Admin\Views\Department\_List_Data_Item.generated.cs">
-      <DependentUpon>_List_Data_Item.cshtml</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -301,7 +296,6 @@
       <DependentUpon>_ViewStart.cshtml</DependentUpon>
     </Compile>
     <Compile Include="Common\AreaAttribute.cs" />
-    <Compile Include="Common\ControllerHelper.cs" />
     <Compile Include="Common\ReadOnlyEntityController.cs" />
     <Compile Include="Common\PagerModelBinder.cs" />
     <Compile Include="Common\EntityTreeController.cs" />
@@ -546,10 +540,6 @@
     <None Include="Areas\Admin\Views\Db\Index.cshtml">
       <Generator>RazorGenerator</Generator>
       <LastGenOutput>Index.generated.cs</LastGenOutput>
-    </None>
-    <None Include="Areas\Admin\Views\Department\_List_Data_Item.cshtml">
-      <Generator>RazorGenerator</Generator>
-      <LastGenOutput>_List_Data_Item.generated.cs</LastGenOutput>
     </None>
     <None Include="Areas\Admin\Views\Role\_List_Data.cshtml">
       <Generator>RazorGenerator</Generator>
