@@ -5,6 +5,7 @@ using System.Text;
 using System.Web;
 using NewLife.Collections;
 using NewLife.Log;
+using XCode.Membership;
 #if __CORE__
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -17,52 +18,9 @@ namespace NewLife.Web
     public static class WebHelper
     {
         #region 用户主机
-        [ThreadStatic]
-        private static String _UserHost;
         /// <summary>用户主机。支持非Web</summary>
-        public static String UserHost
-        {
-            get
-            {
-#if !__CORE__
-                var ctx = HttpContext.Current;
-                if (ctx != null)
-                {
-                    var str = (String)ctx.Items["UserHostAddress"];
-                    if (!String.IsNullOrEmpty(str)) return str;
-
-                    var req = ctx.Request;
-                    if (req != null)
-                    {
-                        if (str.IsNullOrEmpty()) str = req.ServerVariables["HTTP_X_FORWARDED_FOR"];
-                        if (str.IsNullOrEmpty()) str = req.ServerVariables["X-Real-IP"];
-                        if (str.IsNullOrEmpty()) str = req.ServerVariables["X-Forwarded-For"];
-                        if (str.IsNullOrEmpty()) str = req.ServerVariables["REMOTE_ADDR"];
-                        if (str.IsNullOrEmpty()) str = req.UserHostName;
-                        if (str.IsNullOrEmpty()) str = req.UserHostAddress;
-
-                        //// 加上浏览器端口
-                        //var port = Request.ServerVariables["REMOTE_PORT"];
-                        //if (!port.IsNullOrEmpty()) str += ":" + port;
-
-                        ctx.Items["UserHostAddress"] = str;
-
-                        return str;
-                    }
-                }
-#endif
-
-                return _UserHost;
-            }
-            set
-            {
-                _UserHost = value;
-#if !__CORE__
-                var ctx = HttpContext.Current;
-                if (ctx != null) ctx.Items["UserHostAddress"] = value;
-#endif
-            }
-        }
+        [Obsolete("=>ManageProvider.UserHost")]
+        public static String UserHost { get => ManageProvider.UserHost; set => ManageProvider.UserHost = value; }
         #endregion
 
         #region Http请求
@@ -241,7 +199,7 @@ namespace NewLife.Web
             if (name.IsNullOrWhiteSpace()) return sb;
 
             // 必须注意，value可能是时间类型
-            return UrlParam(sb, "{0}={1}".F(name, value));
+            return UrlParam(sb, "{0}={1}".F(HttpUtility.UrlEncode(name), HttpUtility.UrlEncode("{0}".F(value))));
         }
 
         /// <summary>把一个参数字典追加Url参数，指定包含的参数</summary>
@@ -253,7 +211,7 @@ namespace NewLife.Web
         {
             foreach (var item in pms)
             {
-                if (item.Key.EqualIgnoreCase(includes))
+                if (!item.Value.IsNullOrEmpty() && item.Key.EqualIgnoreCase(includes))
                     sb.UrlParam(item.Key, item.Value);
             }
             return sb;
@@ -268,7 +226,7 @@ namespace NewLife.Web
         {
             foreach (var item in pms)
             {
-                if (!item.Key.EqualIgnoreCase(excludes))
+                if (!item.Value.IsNullOrEmpty() && !item.Key.EqualIgnoreCase(excludes))
                     sb.UrlParam(item.Key, item.Value);
             }
             return sb;

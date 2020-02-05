@@ -91,7 +91,8 @@ namespace NewLife.Cube
         {
             // 释放ico图标
             var ico = "favicon.ico";
-            var ico2 = ($"{Setting.Current.StaticPath}/" + ico).GetFullPath();
+            var wwwroot = Setting.Current.WebRootPath;
+            var ico2 = wwwroot.CombinePath(ico).GetFullPath();
             if (!File.Exists(ico2))
             {
                 // 延迟时间释放，给子系统覆盖的机会
@@ -113,8 +114,9 @@ namespace NewLife.Cube
             }
 
             // 检查魔方样式
-            var js = $"{Setting.Current.StaticPath}/Content/Cube.js".GetFullPath();
-            var css = $"{Setting.Current.StaticPath}/Content/Cube.css".GetFullPath();
+            var content = Setting.Current.WebRootPath.CombinePath("Content");
+            var js = content.CombinePath("Cube.js").GetFullPath();
+            var css = content.CombinePath("Cube.css").GetFullPath();
             if (File.Exists(js) && File.Exists(css))
             {
                 // 判断脚本时间
@@ -125,7 +127,7 @@ namespace NewLife.Cube
                     if (DateTime.TryParse(ss[i].TrimStart("//").Trim(), out dt)) break;
                 }
                 // 要求脚本最小更新时间
-                if (dt >= "2017-12-07 00:00:00".ToDateTime()) return;
+                if (dt >= "2020-02-04 00:00:00".ToDateTime()) return;
             }
 
             var url = Setting.Current.PluginServer;
@@ -135,7 +137,7 @@ namespace NewLife.Cube
             {
                 Log = XTrace.Log
             };
-            wc.DownloadLinkAndExtract(url, "Cube_Content", $"{Setting.Current.StaticPath}/Content".GetFullPath(), true);
+            wc.DownloadLinkAndExtract(url, "Cube_Content", content, true);
         }
 
         /// <summary>注册区域，每个继承此区域特性的类的静态构造函数都调用此方法，以进行相关注册</summary>

@@ -203,20 +203,24 @@ namespace NewLife.Cube.Web
                 var set = Setting.Current;
 
                 // 使用认证中心的角色
-                var roleId = GetRole(dic, true);
-                if (roleId > 0)
+                if (set.UseSsoRole)
                 {
-                    user2.RoleID = roleId;
+                    var roleId = GetRole(dic, true);
+                    if (roleId > 0)
+                    {
+                        user2.RoleID = roleId;
 
-                    var ids = GetRoles(client.Items, true).ToList();
-                    if (ids.Contains(roleId)) ids.Remove(roleId);
-                    if (ids.Count == 0)
-                        user2.RoleIDs = null;
-                    else
-                        user2.RoleIDs = "," + ids.OrderBy(e => e).Join() + ",";
+                        var ids = GetRoles(client.Items, true).ToList();
+                        if (ids.Contains(roleId)) ids.Remove(roleId);
+                        if (ids.Count == 0)
+                            user2.RoleIDs = null;
+                        else
+                            user2.RoleIDs = "," + ids.OrderBy(e => e).Join() + ",";
+                    }
                 }
-                else if (user2.RoleID <= 0 && set.DefaultRole > 0)
-                    user2.RoleID = set.DefaultRole;
+                // 使用本地角色
+                if (user2.RoleID <= 0 && !set.DefaultRole.IsNullOrEmpty())
+                    user2.RoleID = Role.GetOrAdd(set.DefaultRole).ID;
 
                 // 头像。有可能是相对路径，需要转为绝对路径
                 var av = client.Avatar;
@@ -271,7 +275,7 @@ namespace NewLife.Cube.Web
                 if (user == null)
                 {
                     // 新注册用户采用魔方默认角色
-                    var rid = set.DefaultRole;
+                    var rid = Role.GetOrAdd(set.DefaultRole).ID;
                     //if (rid == 0 && client.Items.TryGetValue("roleid", out var roleid)) rid = roleid.ToInt();
                     //if (rid <= 0) rid = GetRole(client.Items, rid < -1);
 
@@ -302,8 +306,9 @@ namespace NewLife.Cube.Web
         /// <param name="client_id"></param>
         /// <param name="client_secret"></param>
         /// <param name="code"></param>
+        /// <param name="ip"></param>
         /// <returns></returns>
-        public virtual Object GetAccessToken(OAuthServer sso, String client_id, String client_secret, String code)
+        public virtual Object GetAccessToken(OAuthServer sso, String client_id, String client_secret, String code, String ip)
         {
             var token = sso.GetToken(client_id, client_secret, code);
 

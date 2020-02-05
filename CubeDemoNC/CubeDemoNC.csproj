@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>cube</AssemblyName>
     <RootNamespace>CubeDemo</RootNamespace>
+    <Version>3.1.2020.0115</Version>
+    <FileVersion>3.1.2020.0115</FileVersion>
+    <AssemblyVersion>3.1.*</AssemblyVersion>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -20,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NewLife.Core" Version="8.5.2020.115" />
-    <PackageReference Include="NewLife.XCode" Version="9.14.2020.115" />
+    <PackageReference Include="NewLife.Core" Version="8.6.2020.204" />
+    <PackageReference Include="NewLife.XCode" Version="9.15.2020.204" />
   </ItemGroup>
 
   <ItemGroup>

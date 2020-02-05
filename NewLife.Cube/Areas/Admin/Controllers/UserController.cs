@@ -22,6 +22,7 @@ using System.Web.Security;
 namespace NewLife.Cube.Admin.Controllers
 {
     /// <summary>用户控制器</summary>
+    [DataPermission(null, "ID={#userId}")]
     [DisplayName("用户")]
     [Description("系统基于角色授权，每个角色对不同的功能模块具备添删改查以及自定义权限等多种权限设定。")]
     [Area("Admin")]
@@ -53,9 +54,17 @@ namespace NewLife.Cube.Admin.Controllers
                 if (entity != null) list.Add(entity);
                 return list;
             }
+
+            var roleId = p["roleId"].ToInt(-1);
+            var departmentId = p["departmentId"].ToInt(-1);
+            var enable = p["enable"]?.ToBoolean();
+            var start = p["dtStart"].ToDateTime();
+            var end = p["dtEnd"].ToDateTime();
+
             //p.RetrieveState = true;
 
-            return UserX.Search(p["Q"], p["RoleID"].ToInt(-1), null, p["dtStart"].ToDateTime(), p["dtEnd"].ToDateTime(), p);
+            //return UserX.Search(p["Q"], p["RoleID"].ToInt(-1), enable, start, end, p);
+            return UserX.Search(roleId, departmentId, enable, start, end, p["q"], p);
         }
 
         /// <summary>表单页视图。</summary>
@@ -253,12 +262,14 @@ namespace NewLife.Cube.Admin.Controllers
                 var user = UserX.FindByName(username);
                 if (user != null) throw new ArgumentException("usename", $"用户[{username}]已存在！");
 
+                var r = Role.GetOrAdd(set.DefaultRole);
+
                 user = new UserX()
                 {
                     Name = username,
                     Password = password.MD5(),
                     Mail = email,
-                    RoleID = set.DefaultRole,
+                    RoleID = r.ID,
                     Enable = true
                 };
                 user.Register();

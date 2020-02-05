@@ -8,10 +8,10 @@
     <AssemblyTitle>魔方平台</AssemblyTitle>
     <Description>Mvc权限管理后台，支持模版视图重载覆盖</Description>
     <Company>新生命开发团队</Company>
-    <Copyright>©2002-2020 新生命开发团队</Copyright>
-    <Version>3.1.2020.0115</Version>
-    <FileVersion>3.1.2020.0115</FileVersion>
-    <AssemblyVersion>3.1.*</AssemblyVersion>
+    <Copyright>©2002-2020 NewLife</Copyright>
+    <Version>3.2.2020.0204</Version>
+    <FileVersion>3.2.2020.0204</FileVersion>
+    <AssemblyVersion>3.2.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <OutputPath>..\Bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -28,7 +28,7 @@
     <RepositoryUrl>https://github.com/NewLifeX/NewLife.Cube</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>新生命团队;X组件;NewLife;$(AssemblyName)</PackageTags>
-    <PackageReleaseNotes>Mvc权限管理后台，支持模版视图重载覆盖</PackageReleaseNotes>
+    <PackageReleaseNotes>支持数据权限、用户部门地区选择、用户分享令牌授权</PackageReleaseNotes>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -42,43 +42,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Extensions\NewlifeCubeMvcCoreServiceCollectionExtensions.cs" />
-    <Compile Remove="Extensions\ObjectHelper.cs" />
-    <Compile Remove="Extensions\ScanController.cs" />
-    <Compile Remove="Extensions\SessionExtensions.cs" />
-    <Compile Remove="WebMiddleware\ErrorMiddleware.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="appsettings.json" />
-    <Content Remove="Properties\launchSettings.json" />
-    <Content Remove="wwwroot\favicon.ico" />
-    <Content Remove="wwwroot\Scripts\ApiClient.js" />
-    <Content Remove="wwwroot\Scripts\jquery-1.8.2.intellisense.js" />
-    <Content Remove="wwwroot\Scripts\jquery.unobtrusive-ajax.js" />
-    <Content Remove="wwwroot\Scripts\jquery.unobtrusive-ajax.min.js" />
-    <Content Remove="wwwroot\Scripts\jquery.validate.unobtrusive.js" />
-    <Content Remove="wwwroot\Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Remove="wwwroot\Scripts\modernizr-2.6.2.js" />
-    <Content Remove="wwwroot\Scripts\WebSocketX.js" />
-    <Content Remove="wwwroot\Scripts\_references.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="NewLife.Core" Version="8.5.2020.115" />
-    <PackageReference Include="NewLife.XCode" Version="9.14.2020.115" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
-    <Folder Include="Entity\" />
-    <Folder Include="Web\" />
+    <PackageReference Include="NewLife.Core" Version="8.6.2020.204" />
+    <PackageReference Include="NewLife.XCode" Version="9.15.2020.204" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\AppController.cs" Link="Areas\Admin\Controllers\AppController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\AppLogController.cs" Link="Areas\Admin\Controllers\AppLogController.cs" />
+    <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\AreaController.cs" Link="Areas\Admin\Controllers\AreaController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\CoreController.cs" Link="Areas\Admin\Controllers\CoreController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\CubeController.cs" Link="Areas\Admin\Controllers\CubeController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\DbController.cs" Link="Areas\Admin\Controllers\DbController.cs" />
@@ -92,6 +63,7 @@
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\UserConnectController.cs" Link="Areas\Admin\Controllers\UserConnectController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\UserController.cs" Link="Areas\Admin\Controllers\UserController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\UserOnlineController.cs" Link="Areas\Admin\Controllers\UserOnlineController.cs" />
+    <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\UserTokenController.cs" Link="Areas\Admin\Controllers\UserTokenController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\VisitStatController.cs" Link="Areas\Admin\Controllers\VisitStatController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Controllers\XCodeController.cs" Link="Areas\Admin\Controllers\XCodeController.cs" />
     <Compile Include="..\NewLife.Cube\Areas\Admin\Models\DbItem.cs">
@@ -102,6 +74,7 @@
     </Compile>
     <Compile Include="..\NewLife.Cube\Common\ConfigController.cs" Link="Common\ConfigController.cs" />
     <Compile Include="..\NewLife.Cube\Common\ControllerBaseX.cs" Link="Common\ControllerBaseX.cs" />
+    <Compile Include="..\NewLife.Cube\Common\DataPermissionAttribute.cs" Link="Common\DataPermissionAttribute.cs" />
     <Compile Include="..\NewLife.Cube\Common\EntityController.cs" Link="Common\EntityController.cs" />
     <Compile Include="..\NewLife.Cube\Common\EntityTreeController.cs" Link="Common\EntityTreeController.cs" />
     <Compile Include="..\NewLife.Cube\Common\FieldCollection.cs" Link="Common\FieldCollection.cs" />
@@ -111,6 +84,7 @@
     <Compile Include="..\NewLife.Cube\Common\PageSetting.cs" Link="Common\PageSetting.cs" />
     <Compile Include="..\NewLife.Cube\Common\ReadOnlyEntityController.cs" Link="Common\ReadOnlyEntityController.cs" />
     <Compile Include="..\NewLife.Cube\Common\ViewHelper.cs" Link="Common\ViewHelper.cs" />
+    <Compile Include="..\NewLife.Cube\Controllers\CubeController.cs" Link="Controllers\CubeController.cs" />
     <Compile Include="..\NewLife.Cube\Controllers\HomeController.cs" Link="Controllers\HomeController.cs" />
     <Compile Include="..\NewLife.Cube\Controllers\ODataController.cs" Link="Controllers\ODataController.cs" />
     <Compile Include="..\NewLife.Cube\Controllers\SsoController.cs" Link="Controllers\SsoController.cs" />
@@ -118,6 +92,8 @@
     <Compile Include="..\NewLife.Cube\Entity\应用日志.cs" Link="Entity\应用日志.cs" />
     <Compile Include="..\NewLife.Cube\Entity\应用系统.Biz.cs" Link="Entity\应用系统.Biz.cs" />
     <Compile Include="..\NewLife.Cube\Entity\应用系统.cs" Link="Entity\应用系统.cs" />
+    <Compile Include="..\NewLife.Cube\Entity\用户令牌.Biz.cs" Link="Entity\用户令牌.Biz.cs" />
+    <Compile Include="..\NewLife.Cube\Entity\用户令牌.cs" Link="Entity\用户令牌.cs" />
     <Compile Include="..\NewLife.Cube\Entity\用户链接.Biz.cs">
       <Link>Entity\用户链接.Biz.cs</Link>
     </Compile>
@@ -133,6 +109,13 @@
     <Compile Include="..\NewLife.Cube\Web\SsoProvider.cs" Link="Web\SsoProvider.cs" />
     <Compile Include="..\NewLife.Cube\Web\WebHelper2.cs" Link="Web\WebHelper2.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="appsettings.json" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\NewLife.Cube\Entity\Cube.xml">
       <Link>Entity\Cube.xml</Link>
@@ -142,43 +125,12 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>XCoder.cs</LastGenOutput>
     </None>
+    <None Include="appsettings.json" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="wwwroot\favicon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <None Include="Areas\Admin\Views\UserConnect\_List_Search.cshtml" />
-    <None Include="Properties\launchSettings.json" />
-    <None Include="wwwroot\Content\echarts.min.js" />
-    <None Include="wwwroot\Scripts\ApiClient.js" />
-    <None Include="wwwroot\Scripts\jquery-1.8.2.intellisense.js" />
-    <None Include="wwwroot\Scripts\jquery.unobtrusive-ajax.js" />
-    <None Include="wwwroot\Scripts\jquery.unobtrusive-ajax.min.js" />
-    <None Include="wwwroot\Scripts\jquery.validate.unobtrusive.js" />
-    <None Include="wwwroot\Scripts\jquery.validate.unobtrusive.min.js" />
-    <None Include="wwwroot\Scripts\modernizr-2.6.2.js" />
-    <None Include="wwwroot\Scripts\WebSocketX.js" />
-    <None Include="wwwroot\Scripts\_references.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Areas\Admin\Views\AppLog\_List_Data.cshtml">
-      <Generator></Generator>
-    </Content>
-    <Content Update="Areas\Admin\Views\App\_List_Data.cshtml">
-      <Generator></Generator>
-    </Content>
-    <Content Update="Areas\Admin\Views\App\_List_Search.cshtml">
-      <Generator></Generator>
-    </Content>
-    <Content Update="Areas\Admin\Views\_ViewImports.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="wwwroot\Content\echarts.min.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Update="Views\Shared\_Footer.cshtml">
+      <LastGenOutput>_Footer.generated.cs</LastGenOutput>
+      <Generator>RazorGenerator</Generator>
     </Content>
   </ItemGroup>
-
 </Project>

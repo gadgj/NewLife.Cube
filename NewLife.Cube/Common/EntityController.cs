@@ -5,6 +5,14 @@ using System.Linq;
 using NewLife.Web;
 using XCode;
 using XCode.Membership;
+using NewLife.Reflection;
+using NewLife.Log;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Net.Http;
+using NewLife.Serialization;
+using NewLife.Http;
+using NewLife.Remoting;
 #if __CORE__
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +53,7 @@ namespace NewLife.Cube
             var url = Request.UrlReferrer + "";
 #endif
 
-            var entity = Find(id);
+            var entity = FindData(id);
             Valid(entity, DataObjectMethodType.Delete, true);
 
             OnDelete(entity);
@@ -163,7 +171,7 @@ namespace NewLife.Cube
         [DisplayName("更新{type}")]
         public virtual ActionResult Edit(String id)
         {
-            var entity = Find(id);
+            var entity = FindData(id);
             if (entity == null || (entity as IEntity).IsNullKey) throw new XException("要编辑的数据[{0}]不存在！", id);
 
             // 验证数据权限
@@ -301,7 +309,7 @@ namespace NewLife.Cube
                 // 不要查记录数
                 p.RetrieveTotalCount = false;
 
-                var list = Search(p).ToList();
+                var list = SearchData(p).ToList();
                 count += list.Count;
                 //list.Delete();
                 using (var tran = Entity<TEntity>.Meta.CreateTrans())
@@ -367,6 +375,89 @@ namespace NewLife.Cube
         /// <param name="entity"></param>
         /// <returns></returns>
         protected virtual Int32 OnDelete(TEntity entity) => entity.Delete();
+        #endregion
+
+        #region 同步数据
+        /// <summary>同步数据</summary>
+        /// <returns></returns>
+        [EntityAuthorize(PermissionFlags.Insert)]
+        [DisplayName("同步{type}")]
+        public async Task<ActionResult> Sync()
+        {
+            //if (id.IsNullOrEmpty()) return RedirectToAction(nameof(Index));
+
+            // 读取系统配置
+            var ps = Parameter.FindAllByUserID(ManageProvider.User.ID); // UserID=0 && Category=Sync
+            ps = ps.Where(e => e.Category == "Sync").ToList();
+            var server = ps.FirstOrDefault(e => e.Name == "Server")?.Value;
+            var token = ps.FirstOrDefault(e => e.Name == "Token")?.Value;
+            var models = ps.FirstOrDefault(e => e.Name == "Models")?.Value;
+
+            if (server.IsNullOrEmpty()) throw new ArgumentNullException("未配置 Sync:Server");
+            if (token.IsNullOrEmpty()) throw new ArgumentNullException("未配置 Sync:Token");
+            if (models.IsNullOrEmpty()) throw new ArgumentNullException("未配置 Sync:Models");
+
+            var mds = models.Split(",");
+
+            //// 创建实体工厂
+            //var etype = mds.FirstOrDefault(e => e.Replace(".", "_") == id);
+            //var fact = etype.GetTypeEx()?.AsFactory();
+            //if (fact == null) throw new ArgumentNullException(nameof(id), "未找到模型 " + id);
+
+            // 找到控制器，以识别动作地址
+            var cs = GetControllerAction();
+            var ctrl = cs[0].IsNullOrEmpty() ? cs[1] : $"{cs[0]}/{cs[1]}";
+            if (!mds.Contains(ctrl)) throw new InvalidOperationException($"[{ctrl}]未配置为允许同步 Sync:Models");
+
+            // 创建客户端，准备发起请求
+            var url = server.EnsureEnd("/") + $"{ctrl}/Json/{token}?PageSize=100000";
+
+            var http = new HttpClient
+            {
+                BaseAddress = new Uri(url)
+            };
+
+            var sw = Stopwatch.StartNew();
+
+            var list = await http.InvokeAsync<TEntity[]>(HttpMethod.Get, null);
+
+            sw.Stop();
+
+            var fact = Factory;
+            XTrace.WriteLine("[{0}]共同步数据[{1:n0}]行，耗时{2:n0}ms，数据源：{3}", fact.EntityType.FullName, list.Length, sw.ElapsedMilliseconds, url);
+
+            var arrType = fact.EntityType.MakeArrayType();
+            if (list.Length > 0)
+            {
+                XTrace.WriteLine("[{0}]准备覆盖写入[{1}]行数据", fact.EntityType.FullName, list.Length);
+                using (var tran = fact.CreateTrans())
+                {
+                    // 清空
+                    try
+                    {
+                        fact.Session.Truncate();
+                    }
+                    catch (Exception ex) { XTrace.WriteException(ex); }
+
+                    // 插入
+                    //ms.All(e => { e.AllChilds = new List<Menu>(); return true; });
+                    fact.AllowInsertIdentity = true;
+                    //ms.Insert();
+                    //var empty = typeof(List<>).MakeGenericType(fact.EntityType).CreateInstance();
+                    foreach (IEntity entity in list)
+                    {
+                        if (entity is IEntityTree tree) tree.AllChilds.Clear();
+
+                        entity.Insert();
+                    }
+                    fact.AllowInsertIdentity = false;
+
+                    tran.Commit();
+                }
+            }
+
+            return Index();
+        }
         #endregion
     }
 }

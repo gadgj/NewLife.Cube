@@ -34,6 +34,12 @@ namespace ASP
     #line default
     #line hidden
     using NewLife.Cube;
+    
+    #line 2 "..\..\Views\Shared\_Ace_Layout.cshtml"
+    using NewLife.Cube.Charts;
+    
+    #line default
+    #line hidden
     using NewLife.Reflection;
     using NewLife.Web;
     using XCode;
@@ -49,10 +55,13 @@ namespace ASP
         public override void Execute()
         {
             
-            #line 2 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 3 "..\..\Views\Shared\_Ace_Layout.cshtml"
   
     var set = NewLife.Cube.Setting.Current;
     var set2 = ViewBag.PageSetting as PageSetting;
+
+    var charts = ViewBag.Charts as ECharts[];
+    var charts2 = ViewBag.Charts2 as ECharts[];
 
             
             #line default
@@ -88,7 +97,7 @@ WriteLiteral(" />\r\n    ");
 WriteLiteral("\r\n    <title>");
 
             
-            #line 14 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 18 "..\..\Views\Shared\_Ace_Layout.cshtml"
       Write(ViewBag.Title);
 
             
@@ -97,7 +106,7 @@ WriteLiteral("\r\n    <title>");
 WriteLiteral(" - ");
 
             
-            #line 14 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 18 "..\..\Views\Shared\_Ace_Layout.cshtml"
                        Write(SysConfig.Current.DisplayName);
 
             
@@ -105,9 +114,9 @@ WriteLiteral(" - ");
             #line hidden
 WriteLiteral("</title>\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 529), Tuple.Create("\"", 549)
-, Tuple.Create(Tuple.Create("", 536), Tuple.Create<System.Object, System.Int32>(Href("~/favicon.ico")
-, 536), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 656), Tuple.Create("\"", 676)
+, Tuple.Create(Tuple.Create("", 663), Tuple.Create<System.Object, System.Int32>(Href("~/favicon.ico")
+, 663), false)
 );
 
 WriteLiteral(" rel=\"shortcut icon\"");
@@ -119,7 +128,7 @@ WriteLiteral(">\r\n\r\n    <!-- 页面内联样式 -->\r\n");
 WriteLiteral("    ");
 
             
-            #line 18 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 22 "..\..\Views\Shared\_Ace_Layout.cshtml"
 Write(RenderSection("css", required: false));
 
             
@@ -128,13 +137,13 @@ Write(RenderSection("css", required: false));
 WriteLiteral("\r\n\r\n");
 
             
-            #line 20 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 24 "..\..\Views\Shared\_Ace_Layout.cshtml"
     
             
             #line default
             #line hidden
             
-            #line 20 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 24 "..\..\Views\Shared\_Ace_Layout.cshtml"
      if (set != null && set.BootstrapSelect)
     {
 
@@ -145,15 +154,15 @@ WriteLiteral("        <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 745), Tuple.Create("\"", 801)
-, Tuple.Create(Tuple.Create("", 752), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-multiselect.css")
-, 752), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 872), Tuple.Create("\"", 928)
+, Tuple.Create(Tuple.Create("", 879), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-multiselect.css")
+, 879), false)
 );
 
 WriteLiteral(">\r\n");
 
             
-            #line 23 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 27 "..\..\Views\Shared\_Ace_Layout.cshtml"
     }
 
             
@@ -163,72 +172,72 @@ WriteLiteral("\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 840), Tuple.Create("\"", 904)
-, Tuple.Create(Tuple.Create("", 847), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/bootstrap-datetimepicker.min.css")
-, 847), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 967), Tuple.Create("\"", 1031)
+, Tuple.Create(Tuple.Create("", 974), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/bootstrap-datetimepicker.min.css")
+, 974), false)
 );
 
 WriteLiteral(">\r\n\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 936), Tuple.Create("\"", 994)
-, Tuple.Create(Tuple.Create("", 943), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap-switch/bootstrap-switch.min.css")
-, 943), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1063), Tuple.Create("\"", 1121)
+, Tuple.Create(Tuple.Create("", 1070), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap-switch/bootstrap-switch.min.css")
+, 1070), false)
 );
 
 WriteLiteral(">\r\n\r\n    <!-- 最后引入基本样式 -->\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1049), Tuple.Create("\"", 1097)
-, Tuple.Create(Tuple.Create("", 1056), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap.min.css")
-, 1056), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1176), Tuple.Create("\"", 1224)
+, Tuple.Create(Tuple.Create("", 1183), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap.min.css")
+, 1183), false)
 );
 
 WriteLiteral(">\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1127), Tuple.Create("\"", 1178)
-, Tuple.Create(Tuple.Create("", 1134), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/font-awesome.min.css")
-, 1134), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1254), Tuple.Create("\"", 1305)
+, Tuple.Create(Tuple.Create("", 1261), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/font-awesome.min.css")
+, 1261), false)
 );
 
 WriteLiteral(">\r\n\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1210), Tuple.Create("\"", 1264)
-, Tuple.Create(Tuple.Create("", 1217), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-theme.min.css")
-, 1217), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1337), Tuple.Create("\"", 1391)
+, Tuple.Create(Tuple.Create("", 1344), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-theme.min.css")
+, 1344), false)
 );
 
 WriteLiteral(">\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1294), Tuple.Create("\"", 1353)
-, Tuple.Create(Tuple.Create("", 1301), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-responsive.min.css")
-, 1301), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1421), Tuple.Create("\"", 1480)
+, Tuple.Create(Tuple.Create("", 1428), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/css/bootstrap-responsive.min.css")
+, 1428), false)
 );
 
 WriteLiteral(">\r\n\r\n    <!-- 文本字体 -->\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1404), Tuple.Create("\"", 1446)
-, Tuple.Create(Tuple.Create("", 1411), Tuple.Create<System.Object, System.Int32>(Href("~/Content/ace/css/ace-fonts.min.css")
-, 1411), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1531), Tuple.Create("\"", 1573)
+, Tuple.Create(Tuple.Create("", 1538), Tuple.Create<System.Object, System.Int32>(Href("~/Content/ace/css/ace-fonts.min.css")
+, 1538), false)
 );
 
 WriteLiteral(">\r\n    <!-- ace 样式 -->\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1497), Tuple.Create("\"", 1533)
-, Tuple.Create(Tuple.Create("", 1504), Tuple.Create<System.Object, System.Int32>(Href("~/Content/ace/css/ace.min.css")
-, 1504), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1624), Tuple.Create("\"", 1660)
+, Tuple.Create(Tuple.Create("", 1631), Tuple.Create<System.Object, System.Int32>(Href("~/Content/ace/css/ace.min.css")
+, 1631), false)
 );
 
 WriteLiteral(" class=\"ace-main-stylesheet\"");
@@ -239,9 +248,9 @@ WriteLiteral(">\r\n    ");
 
 WriteLiteral("\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1619), Tuple.Create("\"", 1663)
-, Tuple.Create(Tuple.Create("", 1626), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/css/ui-dialog.css")
-, 1626), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1746), Tuple.Create("\"", 1790)
+, Tuple.Create(Tuple.Create("", 1753), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/css/ui-dialog.css")
+, 1753), false)
 );
 
 WriteLiteral(" rel=\"stylesheet\"");
@@ -250,32 +259,64 @@ WriteLiteral(" />\r\n\r\n    <!-- 自定义样式 -->\r\n    <link");
 
 WriteLiteral(" rel=\"stylesheet\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1734), Tuple.Create("\"", 1775)
-, Tuple.Create(Tuple.Create("", 1741), Tuple.Create<System.Object, System.Int32>(Href("~/Content/Cube.css?v=2.0.2017.1126")
-, 1741), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1861), Tuple.Create("\"", 1902)
+, Tuple.Create(Tuple.Create("", 1868), Tuple.Create<System.Object, System.Int32>(Href("~/Content/Cube.css?v=3.2.2020.0204")
+, 1868), false)
 );
 
 WriteLiteral(">\r\n    <!-- JQuery作为一等公民，页面内部随时可能使用 -->\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1828), Tuple.Create("\"", 1866)
-, Tuple.Create(Tuple.Create("", 1834), Tuple.Create<System.Object, System.Int32>(Href("~/Content/js/jquery-2.1.3.min.js")
-, 1834), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1955), Tuple.Create("\"", 1993)
+, Tuple.Create(Tuple.Create("", 1961), Tuple.Create<System.Object, System.Int32>(Href("~/Content/js/jquery-2.1.3.min.js")
+, 1961), false)
 );
 
-WriteLiteral("></script>\r\n</head>\r\n<body>\r\n    <div");
+WriteLiteral("></script>\r\n");
+
+            
+            #line 51 "..\..\Views\Shared\_Ace_Layout.cshtml"
+    
+            
+            #line default
+            #line hidden
+            
+            #line 51 "..\..\Views\Shared\_Ace_Layout.cshtml"
+     if (charts != null && charts.Length > 0 || charts2 != null && charts2.Length > 0)
+    {
+
+            
+            #line default
+            #line hidden
+WriteLiteral("        <script");
+
+WriteAttribute("src", Tuple.Create(" src=\"", 2116), Tuple.Create("\"", 2146)
+, Tuple.Create(Tuple.Create("", 2122), Tuple.Create<System.Object, System.Int32>(Href("~/Content/echarts.min.js")
+, 2122), false)
+);
+
+WriteLiteral("></script>\r\n");
+
+            
+            #line 54 "..\..\Views\Shared\_Ace_Layout.cshtml"
+    }
+
+            
+            #line default
+            #line hidden
+WriteLiteral("</head>\r\n<body>\r\n    <div");
 
 WriteLiteral(" class=\"panel panel-default\"");
 
 WriteLiteral(">\r\n");
 
             
-            #line 50 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 58 "..\..\Views\Shared\_Ace_Layout.cshtml"
         
             
             #line default
             #line hidden
             
-            #line 50 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 58 "..\..\Views\Shared\_Ace_Layout.cshtml"
          if (set2 != null && set2.EnableNavbar)
         {
 
@@ -297,7 +338,7 @@ WriteLiteral(">\r\n");
 WriteLiteral("                    ");
 
             
-            #line 54 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 62 "..\..\Views\Shared\_Ace_Layout.cshtml"
                Write(Html.Partial("_Ace_Layout_Nav"));
 
             
@@ -310,7 +351,7 @@ WriteLiteral(" style=\"float: right; margin-left: 40px;\"");
 WriteLiteral(">");
 
             
-            #line 56 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 64 "..\..\Views\Shared\_Ace_Layout.cshtml"
                                                          Write(ViewBag.HeaderContent);
 
             
@@ -319,7 +360,7 @@ WriteLiteral(">");
 WriteLiteral("</div>\r\n            </div>\r\n");
 
             
-            #line 58 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 66 "..\..\Views\Shared\_Ace_Layout.cshtml"
         }
 
             
@@ -338,7 +379,7 @@ WriteLiteral(">\r\n");
 WriteLiteral("                ");
 
             
-            #line 61 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 69 "..\..\Views\Shared\_Ace_Layout.cshtml"
            Write(RenderBody());
 
             
@@ -347,13 +388,13 @@ WriteLiteral("                ");
 WriteLiteral("\r\n            </section>\r\n        </div>\r\n");
 
             
-            #line 64 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 72 "..\..\Views\Shared\_Ace_Layout.cshtml"
         
             
             #line default
             #line hidden
             
-            #line 64 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 72 "..\..\Views\Shared\_Ace_Layout.cshtml"
          if (DbRunTimeModule.Enable)
         {
 
@@ -369,7 +410,7 @@ WriteLiteral(">\r\n");
 WriteLiteral("                ");
 
             
-            #line 67 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 75 "..\..\Views\Shared\_Ace_Layout.cshtml"
            Write(Html.Raw(DbRunTimeModule.GetInfo()));
 
             
@@ -378,7 +419,7 @@ WriteLiteral("                ");
 WriteLiteral("\r\n            </div>\r\n");
 
             
-            #line 69 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 77 "..\..\Views\Shared\_Ace_Layout.cshtml"
         }
 
             
@@ -386,21 +427,21 @@ WriteLiteral("\r\n            </div>\r\n");
             #line hidden
 WriteLiteral("    </div>\r\n    <!-- 最早引入基本脚本 -->\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 2689), Tuple.Create("\"", 2734)
-, Tuple.Create(Tuple.Create("", 2695), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/js/bootstrap.min.js")
-, 2695), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 2976), Tuple.Create("\"", 3021)
+, Tuple.Create(Tuple.Create("", 2982), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/js/bootstrap.min.js")
+, 2982), false)
 );
 
 WriteLiteral("></script>\r\n");
 
             
-            #line 73 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 81 "..\..\Views\Shared\_Ace_Layout.cshtml"
     
             
             #line default
             #line hidden
             
-            #line 73 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 81 "..\..\Views\Shared\_Ace_Layout.cshtml"
      if (set != null && set.BootstrapSelect)
     {
 
@@ -409,15 +450,15 @@ WriteLiteral("></script>\r\n");
             #line hidden
 WriteLiteral("        <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 2815), Tuple.Create("\"", 2872)
-, Tuple.Create(Tuple.Create("", 2821), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/js/bootstrap-multiselect.min.js")
-, 2821), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 3102), Tuple.Create("\"", 3159)
+, Tuple.Create(Tuple.Create("", 3108), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap/js/bootstrap-multiselect.min.js")
+, 3108), false)
 );
 
 WriteLiteral("></script>\r\n");
 
             
-            #line 76 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 84 "..\..\Views\Shared\_Ace_Layout.cshtml"
     }
 
             
@@ -428,7 +469,7 @@ WriteLiteral("\r\n");
 WriteLiteral("    ");
 
             
-            #line 78 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 86 "..\..\Views\Shared\_Ace_Layout.cshtml"
 Write(RenderSection("scripts", required: false));
 
             
@@ -436,16 +477,16 @@ Write(RenderSection("scripts", required: false));
             #line hidden
 WriteLiteral("\r\n\r\n    <!--日历控件支持-->\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 2974), Tuple.Create("\"", 3036)
-, Tuple.Create(Tuple.Create("", 2980), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/bootstrap-datetimepicker.min.js")
-, 2980), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 3261), Tuple.Create("\"", 3323)
+, Tuple.Create(Tuple.Create("", 3267), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/bootstrap-datetimepicker.min.js")
+, 3267), false)
 );
 
 WriteLiteral("></script>\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 3060), Tuple.Create("\"", 3132)
-, Tuple.Create(Tuple.Create("", 3066), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/locales/bootstrap-datetimepicker.zh-CN.js")
-, 3066), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 3347), Tuple.Create("\"", 3419)
+, Tuple.Create(Tuple.Create("", 3353), Tuple.Create<System.Object, System.Int32>(Href("~/Content/DateTimePicker/locales/bootstrap-datetimepicker.zh-CN.js")
+, 3353), false)
 );
 
 WriteLiteral("></script>\r\n    <script>\r\n        $(function () {\r\n            $(\'.form_datetime\'" +
@@ -482,13 +523,13 @@ WriteLiteral("></script>\r\n    <script>\r\n        $(function () {\r\n         
 "w\'))\r\n                });\r\n            });\r\n");
 
             
-            #line 148 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 156 "..\..\Views\Shared\_Ace_Layout.cshtml"
             
             
             #line default
             #line hidden
             
-            #line 148 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 156 "..\..\Views\Shared\_Ace_Layout.cshtml"
              if (set != null && set.BootstrapSelect) {
             
             #line default
@@ -569,14 +610,14 @@ WriteLiteral("></label></li>\'\r\n                    },\r\n                    
 "Text: \'全选\'\r\n                });\r\n            });\r\n            ");
 
             
-            #line 168 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 176 "..\..\Views\Shared\_Ace_Layout.cshtml"
                    }
             
             
             #line default
             #line hidden
             
-            #line 171 "..\..\Views\Shared\_Ace_Layout.cshtml"
+            #line 179 "..\..\Views\Shared\_Ace_Layout.cshtml"
                                                                                         
 
             
@@ -594,9 +635,9 @@ WriteLiteral(@"            $('tr').dblclick(function () {
     <!--开关插件-->
     <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 7695), Tuple.Create("\"", 7751)
-, Tuple.Create(Tuple.Create("", 7701), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap-switch/bootstrap-switch.min.js")
-, 7701), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 7982), Tuple.Create("\"", 8038)
+, Tuple.Create(Tuple.Create("", 7988), Tuple.Create<System.Object, System.Int32>(Href("~/Content/bootstrap-switch/bootstrap-switch.min.js")
+, 7988), false)
 );
 
 WriteLiteral("></script>\r\n    <script>\r\n        $(function () {\r\n            $(\"input.chkSwitch" +
@@ -604,25 +645,25 @@ WriteLiteral("></script>\r\n    <script>\r\n        $(function () {\r\n         
 
 WriteLiteral("\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 7915), Tuple.Create("\"", 7964)
-, Tuple.Create(Tuple.Create("", 7921), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/dist/dialog-plus-min.js")
-, 7921), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 8202), Tuple.Create("\"", 8251)
+, Tuple.Create(Tuple.Create("", 8208), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/dist/dialog-plus-min.js")
+, 8208), false)
 );
 
 WriteLiteral("></script>\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 7988), Tuple.Create("\"", 8037)
-, Tuple.Create(Tuple.Create("", 7994), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/dist/dialog.new.life.js")
-, 7994), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 8275), Tuple.Create("\"", 8324)
+, Tuple.Create(Tuple.Create("", 8281), Tuple.Create<System.Object, System.Int32>(Href("~/Content/artDialog/dist/dialog.new.life.js")
+, 8281), false)
 );
 
 WriteLiteral("></script>\r\n    ");
 
 WriteLiteral("\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 8082), Tuple.Create("\"", 8121)
-, Tuple.Create(Tuple.Create("", 8088), Tuple.Create<System.Object, System.Int32>(Href("~/Content/Cube.js?v=2.0.2017.1126")
-, 8088), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 8369), Tuple.Create("\"", 8408)
+, Tuple.Create(Tuple.Create("", 8375), Tuple.Create<System.Object, System.Int32>(Href("~/Content/Cube.js?v=3.2.2020.0204")
+, 8375), false)
 );
 
 WriteLiteral("></script>\r\n</body>\r\n</html>");

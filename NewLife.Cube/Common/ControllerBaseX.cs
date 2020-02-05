@@ -83,6 +83,9 @@ namespace NewLife.Cube
             var user = ManageProvider.User;
             if (user != null)
             {
+                // 设置变量，数据权限使用
+                HttpContext.Items["userId"] = user.ID;
+
                 // 没有菜单时不做权限控制
                 var ctx = context.HttpContext;
                 if (ctx.Items["CurrentMenu"] is IMenu menu)
@@ -199,14 +202,14 @@ namespace NewLife.Cube
         /// <param name="data">消息</param>
         /// <returns></returns>
         protected virtual ActionResult JsonRefresh(Object data) => Json(0, data as String, data, new { url = "[refresh]" });
-        
+
         /// <summary>
         /// 返回结果并刷新
         /// </summary>
         /// <param name="data">消息</param>
         /// <param name="time">延迟刷新秒数</param>
         /// <returns></returns>
-        protected virtual ActionResult JsonRefresh(Object data, Int32 time) => Json(0, data as String, data, new { url = "[refresh]", time});
+        protected virtual ActionResult JsonRefresh(Object data, Int32 time) => Json(0, data as String, data, new { url = "[refresh]", time });
 
         /// <summary>是否Json请求</summary>
         protected virtual Boolean IsJsonRequest
@@ -254,11 +257,11 @@ namespace NewLife.Cube
                 rs = dic;
             }
 
-#if __CORE__
-            return new JsonResult(rs);
-#else
+            //#if __CORE__
+            //            return new JsonResult(rs);
+            //#else
             return Content(OnJsonSerialize(rs), "application/json", Encoding.UTF8);
-#endif
+            //#endif
         }
 
         /// <summary>返回Json数据</summary>
@@ -311,6 +314,31 @@ namespace NewLife.Cube
         /// <param name="data"></param>
         /// <returns></returns>
         protected virtual String OnJsonSerialize(Object data) => data.ToJson();
+        #endregion
+
+        #region 辅助
+        /// <summary>获取控制器名称</summary>
+        /// <returns></returns>
+        protected virtual String[] GetControllerAction()
+        {
+#if __CORE__
+            var act = ControllerContext.ActionDescriptor;
+            var controller = act.ControllerName;
+            var action = act.ActionName;
+            act.RouteValues.TryGetValue("Area", out var area);
+#else
+            var area = (String)RouteData.Values["area"];
+            if (area.IsNullOrEmpty()) area = (String)RouteData.DataTokens["area"];
+
+            var controller = (String)RouteData.Values["controller"];
+            if (controller.IsNullOrEmpty()) controller = (String)RouteData.DataTokens["controller"];
+
+            var action = (String)RouteData.Values["action"];
+            if (action.IsNullOrEmpty()) controller = (String)RouteData.DataTokens["action"];
+#endif
+
+            return new[] { area, controller, action };
+        }
         #endregion
     }
 }

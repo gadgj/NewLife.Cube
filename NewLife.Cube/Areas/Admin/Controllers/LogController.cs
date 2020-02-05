@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using NewLife.Web;
 using XCode;
+using XCode.Membership;
+using XCode.Model;
 using XLog = XCode.Membership.Log;
 
 namespace NewLife.Cube.Admin.Controllers
 {
     /// <summary>审计日志控制器</summary>
+    [DataPermission(null, "CreateUserID={#userId}")]
     [DisplayName("审计日志")]
     [Description("系统内重要操作均记录日志，便于审计。任何人都不能删除、修改或伪造操作日志。")]
     [Area("Admin")]

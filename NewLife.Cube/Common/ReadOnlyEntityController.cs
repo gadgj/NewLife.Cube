@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using System.Xml.Serialization;
 using NewLife.Common;
 using NewLife.Cube.Entity;
+using NewLife.Cube.Extensions;
+using NewLife.Data;
+using NewLife.IO;
+using NewLife.Log;
 using NewLife.Serialization;
 using NewLife.Web;
 using NewLife.Xml;
 using XCode;
 using XCode.Configuration;
 using XCode.Membership;
-using NewLife.IO;
-using System.IO;
-using System.Xml.Serialization;
-using System.IO.Compression;
-using NewLife.Log;
+using XCode.Model;
+using NewLife.Security;
+
 #if __CORE__
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +30,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Net.Http.Headers;
-using NewLife.Cube.Extensions;
 #else
 using System.Web.Mvc;
 #endif
@@ -150,11 +154,27 @@ namespace NewLife.Cube
         /// <returns></returns>
         protected virtual IEnumerable<TEntity> Search(Pager p)
         {
+            return Entity<TEntity>.Search(p["dtStart"].ToDateTime(), p["dtEnd"].ToDateTime(), p["Q"], p);
+        }
+
+        /// <summary>搜索数据，支持数据权限</summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        protected IEnumerable<TEntity> SearchData(Pager p)
+        {
             // 缓存数据，用于后续导出
             //SetSession(CacheKey, p);
-            Session[CacheKey] = p;
+            //Session[CacheKey] = p;
 
-            return Entity<TEntity>.Search(p["dtStart"].ToDateTime(), p["dtEnd"].ToDateTime(), p["Q"], p);
+            // 数据权限
+            var builder = CreateWhere();
+            if (builder != null)
+            {
+                if (builder.Data2 == null) builder.Data2 = p;
+                p.State = builder;
+            }
+
+            return Search(p);
         }
 
         /// <summary>查找单行数据</summary>
@@ -183,6 +203,53 @@ namespace NewLife.Cube
             return Entity<TEntity>.FindByKeyForEdit(key);
         }
 
+        /// <summary>查找单行数据，并判断数据权限</summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected TEntity FindData(Object key)
+        {
+            // 先查出来，再判断数据权限
+            var entity = Find(key);
+            if (entity != null)
+            {
+                // 数据权限
+                var builder = CreateWhere();
+                if (builder != null && !builder.Eval(entity)) throw new InvalidOperationException($"非法访问数据[{key}]");
+            }
+
+            return entity;
+        }
+
+        /// <summary>创建查询条件构造器，主要用于数据权限</summary>
+        /// <returns></returns>
+        protected virtual WhereBuilder CreateWhere()
+        {
+            var att = GetType().GetCustomAttribute<DataPermissionAttribute>();
+            if (att == null) return null;
+
+            // 已登录用户判断系统角色，未登录时不判断
+            var user = HttpContext.Items["CurrentUser"] as IUser;
+            if (user == null) user = ManageProvider.User;
+            if (user != null && (user.Roles.Any(e => e.IsSystem) || att.Valid(user.Roles))) return null;
+
+            var builder = new WhereBuilder
+            {
+                Factory = Factory,
+                Expression = att.Expression,
+#if __CORE__
+                //Data = Session,
+#endif
+            };
+#if __CORE__
+            builder.SetData(Session);
+#else
+            builder.Data = new SessionExtend { Session = Session };
+#endif
+            builder.Data2 = new ItemsExtend { Items = HttpContext.Items };
+
+            return builder;
+        }
+
         /// <summary>获取选中键</summary>
         /// <returns></returns>
         protected virtual String[] SelectKeys => GetRequest("Keys").Split(",");
@@ -199,7 +266,7 @@ namespace NewLife.Cube
                 PageIndex = 1,
                 PageSize = 1,
             };
-            Search(p);
+            SearchData(p);
             p.PageSize = 20_000;
 
             //!!! 数据量很大，且有时间条件时，采用时间分片导出。否则统一分页导出
@@ -255,7 +322,7 @@ namespace NewLife.Cube
 #endif
                 if (p.PageSize > max) p.PageSize = max;
 
-                var list = Search(p);
+                var list = SearchData(p);
 
                 var count = list.Count();
                 if (count == 0) break;
@@ -314,7 +381,7 @@ namespace NewLife.Cube
                 p["dtStart"] = dt.ToFullString();
                 p["dtEnd"] = dt2.ToFullString();
 
-                var list = Search(p);
+                var list = SearchData(p);
 
                 var count = list.Count();
                 //if (count == 0) break;
@@ -357,7 +424,7 @@ namespace NewLife.Cube
             // 需要总记录数来分页
             p.RetrieveTotalCount = true;
 
-            var list = Search(p);
+            var list = SearchData(p);
 
             // Json输出
             if (IsJsonRequest) return Json(0, null, list, new { pager = p });
@@ -372,7 +439,7 @@ namespace NewLife.Cube
         [DisplayName("查看{type}")]
         public virtual ActionResult Detail(String id)
         {
-            var entity = Find(id);
+            var entity = FindData(id);
             if (entity == null || (entity as IEntity).IsNullKey) throw new XException("要查看的数据[{0}]不存在！", id);
 
             // 验证数据权限
@@ -400,29 +467,50 @@ namespace NewLife.Cube
         #endregion
 
         #region 高级Action
-        /// <summary>Json接口</summary>
-        /// <param name="id">令牌</param>
+        /// <summary>页面</summary>
+        /// <param name="token">令牌</param>
         /// <param name="p">分页</param>
         /// <returns></returns>
         [AllowAnonymous]
-        [DisplayName("Json接口")]
-        public virtual ActionResult Json(String id, Pager p)
+        [DisplayName("页面")]
+        public virtual ActionResult Html(String token, Pager p)
         {
-            if (id.IsNullOrEmpty()) id = GetRequest("token");
-            if (id.IsNullOrEmpty()) id = GetRequest("key");
-
             try
             {
-                //var user = UserToken.Valid(id);
-                var app = App.Valid(id);
+                var issuer = ValidToken(token);
 
                 // 需要总记录数来分页
                 p.RetrieveTotalCount = true;
 
-                var list = Search(p);
+                var list = SearchData(p);
+
+                return View("List", list);
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
+        }
+
+        /// <summary>Json接口</summary>
+        /// <param name="token">令牌</param>
+        /// <param name="p">分页</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [DisplayName("Json接口")]
+        public virtual ActionResult Json(String token, Pager p)
+        {
+            try
+            {
+                var issuer = ValidToken(token);
+
+                // 需要总记录数来分页
+                p.RetrieveTotalCount = true;
+
+                var list = SearchData(p);
 
                 // Json输出
-                return Json(0, null, list, new { pager = p });
+                return Json(0, null, list, new { issuer, pager = p });
             }
             catch (Exception ex)
             {
@@ -430,30 +518,69 @@ namespace NewLife.Cube
             }
         }
 
+        /// <summary>验证令牌是否有效</summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual String ValidToken(String token)
+        {
+            if (token.IsNullOrEmpty()) token = GetRequest("token");
+            if (token.IsNullOrEmpty()) token = GetRequest("key");
+
+            var app = App.FindBySecret(token);
+            if (app != null)
+            {
+                if (!app.Enable) throw new XException("非法授权！");
+
+                return app?.ToString();
+            }
+            else
+            {
+                var ut = UserToken.Valid(token, UserHost);
+                var user = ut.User;
+
+                // 定位菜单页面
+                var menu = ManageProvider.Menu.FindByFullName(GetType().FullName);
+
+                // 判断权限
+                if (menu == null || !user.Has(menu, PermissionFlags.Detail)) throw new Exception($"该用户[{user}]无权访问[{menu}]");
+
+                // 锁定页面
+                if (!ut.Url.IsNullOrEmpty())
+                {
+                    var url = ut.Url;
+                    if (url.Contains("?")) url = url.Substring(null, "?");
+                    if (!url.StartsWithIgnoreCase(menu.Url.TrimStart("~"))) throw new Exception($"该令牌[{user}]无权访问[{menu}]，仅限于[{url}]");
+                }
+
+                // 设置当前用户，用于数据权限控制
+                HttpContext.Items["userId"] = user.ID;
+                HttpContext.Items["CurrentUser"] = user;
+
+                return user?.ToString();
+            }
+        }
+
         /// <summary>Xml接口</summary>
-        /// <param name="id">令牌</param>
+        /// <param name="token">令牌</param>
         /// <param name="p">分页</param>
         /// <returns></returns>
         [AllowAnonymous]
         [DisplayName("Xml接口")]
-        public virtual ActionResult Xml(String id, Pager p)
+        public virtual ActionResult Xml(String token, Pager p)
         {
-            if (id.IsNullOrEmpty()) id = GetRequest("token");
-            if (id.IsNullOrEmpty()) id = GetRequest("key");
-
             var xml = "";
             try
             {
-                //var user = UserToken.Valid(id);
-                var app = App.Valid(id);
+                var issuer = ValidToken(token);
 
                 // 需要总记录数来分页
                 p.RetrieveTotalCount = true;
 
-                var list = Search(p) as IList<TEntity>;
+                var list = SearchData(p) as IList<TEntity>;
 
-                var rs = new Root { Result = false, Data = list, Pager = p };
-                xml = rs.ToXml(null, false, true);
+                var rs = new Root { Result = false, Data = list, Pager = p, Issuer = issuer };
+
+                xml = rs.ToXml(null, false, false);
             }
             catch (Exception ex)
             {
@@ -469,6 +596,7 @@ namespace NewLife.Cube
             public Boolean Result { get; set; }
             public IList<TEntity> Data { get; set; }
             public Pager Pager { get; set; }
+            public String Issuer { get; set; }
         }
 
         /// <summary>导出Xml</summary>
@@ -578,7 +706,9 @@ namespace NewLife.Cube
             }
 
             // 要导出的数据超大时，启用流式输出
+#if !__CORE__
             var buffer = true;
+#endif
             if (Factory.Count > 100_000)
             {
                 var p = Session[CacheKey] as Pager;
@@ -587,10 +717,12 @@ namespace NewLife.Cube
                     PageSize = 1,
                     RetrieveTotalCount = true
                 };
-                Search(p);
+                SearchData(p);
 
+#if !__CORE__
                 // 超过一万行
                 if (p.TotalCount > 10_000) buffer = false;
+#endif
             }
 
             SetAttachment(null, ".xls", true);
@@ -662,8 +794,10 @@ namespace NewLife.Cube
             // 准备需要输出的列
             var fs = Factory.Fields.ToList();
 
+#if !__CORE__
             // 要导出的数据超大时，启用流式输出
             var buffer = true;
+#endif
             if (Factory.Count > 100_000)
             {
                 var p = Session[CacheKey] as Pager;
@@ -672,10 +806,12 @@ namespace NewLife.Cube
                     PageSize = 1,
                     RetrieveTotalCount = true
                 };
-                Search(p);
+                SearchData(p);
 
+#if !__CORE__
                 // 超过一万行
                 if (p.TotalCount > 10_000) buffer = false;
+#endif
             }
 
             var name = GetType().Name.TrimEnd("Controller");
@@ -832,6 +968,47 @@ namespace NewLife.Cube
                 return Json(0, null, ex);
             }
         }
+
+        /// <summary>分享数据</summary>
+        /// <remarks>
+        /// 为当前url创建用户令牌
+        /// </remarks>
+        /// <returns></returns>
+        [EntityAuthorize(PermissionFlags.Detail)]
+        [DisplayName("分享{type}")]
+        public virtual ActionResult Share()
+        {
+            // 当前用户所有令牌
+            var userId = ManageProvider.User.ID;
+            var list = UserToken.Search(null, userId, true, DateTime.Now, DateTime.MinValue, null);
+
+            var p = Session[CacheKey] as Pager;
+            p = new Pager(p)
+            {
+                RetrieveTotalCount = false,
+            };
+
+            // 构造url
+            var cs = GetControllerAction();
+            var url = cs[0].IsNullOrEmpty() ? $"/{cs[1]}" : $"/{cs[0]}/{cs[1]}";
+            var sb = p.GetBaseUrl(true, true, true);
+            if (sb.Length > 0) url += "?" + sb;
+
+            // 如果该url已存在，则延长有效期
+            var ut = list.FirstOrDefault(e => e.Url.EqualIgnoreCase(url));
+            if (ut == null) ut = new UserToken { UserID = userId, Url = url };
+
+            if (ut.Token.IsNullOrEmpty()) ut.Token = Rand.NextString(8);
+            ut.Enable = true;
+            ut.Expire = DateTime.Now.AddSeconds(Setting.Current.ShareExpire);
+            ut.Save();
+
+            //var url2 = $"/Admin/UserToken?q={ut.Token}";
+
+            //return Json(0, "分享成功！" + url, null, new { url = url2, time = 3 });
+
+            return RedirectToAction("Index", "UserToken", new { area = "Admin", q = ut.Token });
+        }
         #endregion
 
         #region 模版Action
@@ -847,7 +1024,8 @@ namespace NewLife.Cube
             var root = GetProjectRoot();
 
             // 视图路径，Areas/区域/Views/控制器/_List_Data.cshtml
-            var vpath = "Areas/{0}/Views/{1}/_List_Data.cshtml".F(RouteData.Values["area"], GetType().Name.TrimEnd("Controller"));
+            var cs = GetControllerAction();
+            var vpath = "Areas/{0}/Views/{1}/_List_Data.cshtml".F(cs[0], cs[1]);
             if (!root.IsNullOrEmpty()) vpath = root.EnsureEnd("/") + vpath;
 
             var rs = ViewHelper.MakeListView(typeof(TEntity), vpath, ListFields);
@@ -872,7 +1050,8 @@ namespace NewLife.Cube
             var root = GetProjectRoot();
 
             // 视图路径，Areas/区域/Views/控制器/_Form_Body.cshtml
-            var vpath = "Areas/{0}/Views/{1}/_Form_Body.cshtml".F(RouteData.Values["area"], GetType().Name.TrimEnd("Controller"));
+            var cs = GetControllerAction();
+            var vpath = "Areas/{0}/Views/{1}/_Form_Body.cshtml".F(cs[0], cs[1]);
             if (!root.IsNullOrEmpty()) vpath = root.EnsureEnd("/") + vpath;
 
             var rs = ViewHelper.MakeFormView(typeof(TEntity), vpath, FormFields);
@@ -897,7 +1076,8 @@ namespace NewLife.Cube
             var root = GetProjectRoot();
 
             // 视图路径，Areas/区域/Views/控制器/_List_Search.cshtml
-            var vpath = "Areas/{0}/Views/{1}/_List_Search.cshtml".F(RouteData.Values["area"], GetType().Name.TrimEnd("Controller"));
+            var cs = GetControllerAction();
+            var vpath = "Areas/{0}/Views/{1}/_List_Search.cshtml".F(cs[0], cs[1]);
             if (!root.IsNullOrEmpty()) vpath = root.EnsureEnd("/") + vpath;
 
             var rs = ViewHelper.MakeSearchView(typeof(TEntity), vpath, ListFields);

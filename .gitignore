@@ -69,3 +69,5 @@ bld/
 /CubeDemoST/wwwroot/css
 /NewLife.CubeNC/Properties/PublishProfiles/FolderProfile.pubxml
 /XTemp
+/Temp
+/NewLife.CubeNC/Properties/launchSettings.json
